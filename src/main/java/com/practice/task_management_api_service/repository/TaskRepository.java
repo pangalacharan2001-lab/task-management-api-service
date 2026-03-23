@@ -1,0 +1,11 @@
+package com.practice.task_management_api_service.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.practice.task_management_api_service.entity.Task;
+
+@Repository
+public interface TaskRepository extends JpaRepository<Task, Long>{
+
+}
