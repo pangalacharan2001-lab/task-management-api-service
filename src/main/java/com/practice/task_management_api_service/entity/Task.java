@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -40,5 +41,11 @@ public class Task {
     private String priority;
     @FutureOrPresent
     private LocalDate dueDate;
-    private LocalDate createdAt = LocalDate.now();
+    private LocalDate createdAt;
+
+    @PrePersist
+    public void prePersist()
+    {
+        createdAt = LocalDate.now();
+    }
 }
