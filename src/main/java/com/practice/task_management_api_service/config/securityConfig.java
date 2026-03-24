@@ -2,14 +2,12 @@ package com.practice.task_management_api_service.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -23,7 +21,13 @@ public class securityConfig {
             .requestMatchers("/tasks/**").hasRole("ADMIN")
             .anyRequest().authenticated()
             )
-            .httpBasic(Customizer.withDefaults());
+            .formLogin(form -> form
+                .defaultSuccessUrl("/tasks/**, true")
+                .failureHandler(new LoginFailureHandler())
+                .permitAll()
+            )
+            .logout(logout -> logout.permitAll())
+            .exceptionHandling(ex -> ex.accessDeniedHandler(new CustomAccessDeniedHandler()));
 
         return http.build();
     }
@@ -33,14 +37,10 @@ public class securityConfig {
     {
         return new BCryptPasswordEncoder();
     }
+    
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder)
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
     {
-        UserDetails admin = org.springframework.security.core.userdetails.User
-                            .withUsername("Charan")
-                            .password(passwordEncoder.encode("Charan"))
-                            .roles("ADMIN")
-                            .build();
-        return new InMemoryUserDetailsManager(admin);
+        return config.getAuthenticationManager();
     }
 }
